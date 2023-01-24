@@ -37,13 +37,16 @@ app.listen(port, () => {
 const init = async function () {
   const browser = await puppeteer.launch({ 
     headless: true,
+    defaultViewport: null,
     args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
+        '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36'
     ]
   });
   const page = await browser.newPage();
-  await page.setViewport({ width: 1366, height: 768 });
+  await page.setUserAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36");
+  // await page.setViewport({ width: 1366, height: 768 });
 
   await doLogin(page);
 
