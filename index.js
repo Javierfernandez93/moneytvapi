@@ -1,6 +1,7 @@
 import express from "express";
 import puppeteer from "puppeteer";
 // import { cors } from 'cors'
+import chromium from "chrome-aws-lambda";
 
 const app = express();
 
@@ -38,6 +39,7 @@ const init = async function () {
   const browser = await puppeteer.launch({ 
     headless: true,
     defaultViewport: null,
+    executablePath: await chromium.executablePath,
     args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
