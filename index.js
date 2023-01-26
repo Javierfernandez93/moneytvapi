@@ -15,20 +15,33 @@ const port = 3000;
 app.get("/user/get", async (req, res) => {
   const { username } = req.query;
 
-  const page = await init();
-  const user = await getUserStatus(page, username);
+  if(username)
+  {
+    const page = await init();
+    const user = await getUserStatus(page, username);
 
-  res.status(200).send({ user: user });
+    res.status(200).send({ user: user });
+  } else {
+    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+  }
 });
 
 app.get("/user/demo", async (req, res) => {
   const { username } = req.query;
   
-  const page = await init();
-  await requestDemo(page, username);
-  const user = await getUserStatus(page, username);
-
-  res.status(200).send({ user: user });
+  if(username)
+  {
+    const page = await init();
+    await requestDemo(page, username);
+    const user = await getUserStatus(page, username);
+  
+    res.status(200).send({ 
+      s: 1,
+      user: user 
+    });
+  } else {
+    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+  }
 });
 
 app.listen(port, () => {
