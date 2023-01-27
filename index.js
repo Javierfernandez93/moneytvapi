@@ -12,6 +12,10 @@ const port = 3000;
 // app.use('/', import('./routes/api'))
 // app.use(cors())
 
+app.get("/", async (req, res) => {
+  res.status(200).send({s:1,r:'all_services_working'})
+})
+
 app.get("/user/get", async (req, res) => {
   const { username } = req.query;
 
@@ -25,6 +29,24 @@ app.get("/user/get", async (req, res) => {
     res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
   }
 });
+
+app.get("/user/service", async (req, res) => {
+  const { username } = req.query;
+  
+  if(username)
+  {
+    const page = await init();
+    await requestService(page, username);
+    const user = await getUserStatus(page, username);
+  
+    res.status(200).send({ 
+      s: 1,
+      user: user 
+    });
+  } else {
+    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+  }
+})
 
 app.get("/user/demo", async (req, res) => {
   const { username } = req.query;
@@ -72,6 +94,7 @@ const init = async function () {
 const PAGES = {
   LOGIN: "http://51.222.43.170:25001/",
   TRIAL: "http://51.222.43.170:25001/user_reseller.php?trial",
+  SERVICE: "http://51.222.43.170:25001/user_reseller.php",
   USERS: "http://51.222.43.170:25001/users.php",
 };
 
@@ -85,6 +108,19 @@ const doLogin = async function (page) {
 
 const requestDemo = async function (page, username) {
   await page.goto(PAGES.TRIAL, { waitUntil: "networkidle2", timeout: 0 });
+  await page.waitForSelector("#username");
+  await page.type("#username", username);
+
+  const downloadType = "#download_type";
+  await page.waitForSelector(downloadType);
+  await page.select("#download_type", "type=m3u&output=mpegts");
+
+  await clickIntoButton(page, "a.btn-secondary"); // go to purchase
+  await clickIntoButton(page, "input.purchase"); // purchase
+};
+
+const requestService = async function (page, username) {
+  await page.goto(PAGES.SERVICE, { waitUntil: "networkidle2", timeout: 0 });
   await page.waitForSelector("#username");
   await page.type("#username", username);
 
