@@ -10,7 +10,7 @@ app.use(cors())
 
 app.use(express.json());
 
-const port = 3002;
+const port = 3000;
 
 app.get("/", async (req, res) => {
   res.status(200).send({s:1,r:'all_services_working'})
