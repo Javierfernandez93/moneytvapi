@@ -7,7 +7,7 @@ const app = express();
 
 // app.use(cors())
 app.use(express.json());
-const port = 3000;
+const port = 3001;
 
 // app.use('/', import('./routes/api'))
 // app.use(cors())
@@ -24,6 +24,8 @@ app.get("/user/get", async (req, res) => {
     const page = await init();
     const user = await getUserStatus(page, username);
 
+    await browser.close();
+
     res.status(200).send({ user: user });
   } else {
     res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
@@ -39,6 +41,8 @@ app.get("/user/service", async (req, res) => {
     await requestService(page, username);
     const user = await getUserStatus(page, username);
   
+    await browser.close();
+
     res.status(200).send({ 
       s: 1,
       user: user 
@@ -57,6 +61,8 @@ app.get("/user/demo", async (req, res) => {
     await requestDemo(page, username);
     const user = await getUserStatus(page, username);
   
+    await browser.close();
+
     res.status(200).send({ 
       s: 1,
       user: user 
@@ -80,13 +86,11 @@ const init = async function () {
         '--disable-setuid-sandbox',
     ]
   });
-  const page = await browser.newPage();
 
+  const page = await browser.newPage();
   // await page.setViewport({ width: 1366, height: 768 });
 
   await doLogin(page);
-
-//   await browser.close();
 
   return page;
 };
