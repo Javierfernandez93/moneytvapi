@@ -43,11 +43,11 @@ app.get("/user/service", async (req, res) => {
   {
     console.log('settingup service')
 
-    const page = await init();
-    await requestService(page, username);
-    const user = await getUserStatus(page, username);
+    const client = await init();
+    await requestService(client.page, username);
+    const user = await getUserStatus(client.page, username);
   
-    await browser.close();
+    await client.browser.close();
 
     res.status(200).send({ 
       s: 1,
@@ -65,11 +65,11 @@ app.get("/user/demo", async (req, res) => {
   {
     console.log('settingup demo')
 
-    const page = await init();
-    await requestDemo(page, username);
-    const user = await getUserStatus(page, username);
+    const client = await init();
+    await requestDemo(client.page, username);
+    const user = await getUserStatus(client.page, username);
   
-    await browser.close();
+    await client.browser.close();
 
     res.status(200).send({ 
       s: 1,
