@@ -23,6 +23,7 @@ const init = async function () {
 };
 
 const PAGES = {
+  HOME: "http://51.222.43.170:25001/reseller.php",
   LOGIN: "http://51.222.43.170:25001/",
   TRIAL: "http://51.222.43.170:25001/user_reseller.php?trial",
   SERVICE: "http://51.222.43.170:25001/user_reseller.php",
@@ -134,6 +135,22 @@ const getUserById = async function (page, id) {
   }
 }
 
+const getLastMovies = async function (page, username) {
+  await page.goto(PAGES.HOME, { waitUntil: "networkidle2", timeout: 0 });
+  await page.waitForSelector("#cardActivity");
+
+  const cardActivity = await page.$('div#cardActivity')
+
+  return await cardActivity.$$eval("a", items => {
+    return Array.from(items, (item) => {
+      return {
+          link: item.href,
+          image: item.querySelector("img").src
+      };
+    })
+  });
+}
+
 const getUserByName = async function (page, username) {
   await page.goto(PAGES.USERS, { waitUntil: "networkidle2", timeout: 0 });
   await page.waitForSelector(".table");
@@ -175,4 +192,4 @@ const clickIntoButton = async function (page, button) {
   await page.click(button);
 };
 
-export { init, getUserById, requestDemo, requestService, requestRenovation, getUserByName, log };
+export { init, getUserById, requestDemo, requestService, requestRenovation, getUserByName, getLastMovies, log };

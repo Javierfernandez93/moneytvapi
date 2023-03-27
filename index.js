@@ -1,5 +1,5 @@
 import express from "express";
-import { init, requestDemo, requestService, getUserById, requestRenovation, getUserByName, log } from "./controller/controller.js";
+import { init, requestDemo, requestService, getUserById, requestRenovation, getUserByName, getLastMovies, log } from "./controller/controller.js";
 import cors from 'cors'
 
 const app = express();
@@ -14,6 +14,17 @@ const port = 3000;
 
 app.get("/", async (req, res) => {
   res.status(200).send({s:1,r:'all_services_working'})
+})
+
+app.get("/movies/last", async (req, res) => {
+  const client = await init()
+  const movies = await getLastMovies(client.page);
+    
+  await client.browser.close();
+  
+  log('done')
+
+  res.status(200).send({ movies: movies, s: 1 });
 })
 
 app.get("/user/get", async (req, res) => {
