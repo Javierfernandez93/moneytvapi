@@ -1,5 +1,5 @@
 import express from "express";
-import { init, requestDemo, requestService, getUserStatus, log } from "./controller/controller.js";
+import { init, requestDemo, requestService, getUserById, requestRenovation, getUserByName, log } from "./controller/controller.js";
 import cors from 'cors'
 
 const app = express();
@@ -17,41 +17,63 @@ app.get("/", async (req, res) => {
 })
 
 app.get("/user/get", async (req, res) => {
-  const { username } = req.query;
+  const { id } = req.query;
 
-  if(username)
+  if(id)
   {
     log('gettinguser')
     
     const client = await init()
-    const user = await getUserStatus(client.page, username);
+    const user = await getUserById(client.page, id);
     
     await client.browser.close();
     
     log('done')
 
-    res.status(200).send({ user: user });
+    res.status(200).send({ user: user, s: 1 });
   } else {
     res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
   }
 });
 
-app.get("/user/service", async (req, res) => {
-  const { username } = req.query;
+app.get("/user/renovation", async (req, res) => {
+  const { id, package_id } = req.query;
   
-  if(username)
+  if(id)
   {
-    console.log('settingup service')
+    log(`settingup renovation ${id} ${package_id}`)
 
     const client = await init();
-    await requestService(client.page, username);
-    const user = await getUserStatus(client.page, username);
+    await requestRenovation(client.page, id, package_id);
+    const user = await getUserById(client.page, id);
   
     await client.browser.close();
 
     res.status(200).send({ 
       s: 1,
-      user: user 
+      user: user
+    });
+  } else {
+    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+  }
+})
+
+app.get("/user/service", async (req, res) => {
+  const { username, package_id } = req.query;
+  
+  if(username)
+  {
+    log('settingup service')
+
+    const client = await init();
+    await requestService(client.page, username, package_id);
+    const user = await getUserByName(client.page, username);
+  
+    await client.browser.close();
+
+    res.status(200).send({ 
+      s: 1,
+      user: user
     });
   } else {
     res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
@@ -63,13 +85,13 @@ app.get("/user/demo", async (req, res) => {
   
   if(username)
   {
-    console.log('settingup demo')
+    log('settingup demo')
 
     const client = await init();
     await requestDemo(client.page, username);
-    const user = await getUserStatus(client.page, username);
-  
-    await client.browser.close();
+    const user = await getUserByName(client.page, username);
+
+    await client.browser.close()
 
     res.status(200).send({ 
       s: 1,

@@ -2,10 +2,11 @@ import puppeteer from "puppeteer";
 import chromium from "chrome-aws-lambda";
 
 const log = (message) => console.log(`SERVER ${message}`);
+const DEFAULT_PACKAGE = 2
 
 const init = async function () {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     defaultViewport: null,
     executablePath: await chromium.executablePath,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -26,6 +27,8 @@ const PAGES = {
   TRIAL: "http://51.222.43.170:25001/user_reseller.php?trial",
   SERVICE: "http://51.222.43.170:25001/user_reseller.php",
   USERS: "http://51.222.43.170:25001/users.php",
+  USER: "http://51.222.43.170:25001/user_reseller.php",
+  RENOVATION: "http://51.222.43.170:25001/user_reseller.php",
 };
 
 const doLogin = async function (page) {
@@ -49,7 +52,44 @@ const requestDemo = async function (page, username) {
   await clickIntoButton(page, "input.purchase"); // purchase
 };
 
-const requestService = async function (page, username) {
+/* @package_id = 2 Oficial 1 Mes Completo, 
+  3 = Oficial 1 Mes Sin XXX
+  4 = Official 3 Meses Sin XXX
+  5 = Official 3 Meses Completo
+  10 = 6 meses completo
+  11 = 6 meses sin xxx
+  12 = 12 meses completo
+  13 = 13 meses sin xxx
+*/
+const requestRenovation = async function (page, id, package_id) {
+  await page.goto(`${PAGES.RENOVATION}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
+  await page.waitForSelector("#username");
+
+  const downloadType = "#download_type";
+  await page.waitForSelector(downloadType);
+  await page.select("#download_type", "type=m3u&output=mpegts");
+
+  package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
+  
+  log(`package ${package_id}`);
+  const extendPackage = "#package";
+  await page.waitForSelector(extendPackage);
+  await page.select("#package", package_id);
+
+  await clickIntoButton(page, "a.btn-secondary"); // go to purchase
+  await clickIntoButton(page, "input.purchase"); // purchase
+};
+
+/* @package_id = 2 Oficial 1 Mes Completo, 
+  3 = Oficial 1 Mes Sin XXX
+  4 = Official 3 Meses Sin XXX
+  5 = Official 3 Meses Completo
+  10 = 6 meses completo
+  11 = 6 meses sin xxx
+  12 = 12 meses completo
+  13 = 13 meses sin xxx
+*/
+const requestService = async function (page, username, package_id) {
   await page.goto(PAGES.SERVICE, { waitUntil: "networkidle2", timeout: 0 });
   await page.waitForSelector("#username");
   await page.type("#username", username);
@@ -58,11 +98,43 @@ const requestService = async function (page, username) {
   await page.waitForSelector(downloadType);
   await page.select("#download_type", "type=m3u&output=mpegts");
 
+  package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
+  
+  log(`package ${package_id}`);
+  const extendPackage = "#package";
+  await page.waitForSelector(extendPackage);
+  await page.select("#package", package_id);
+
   await clickIntoButton(page, "a.btn-secondary"); // go to purchase
-  await clickIntoButton(page, "input.purchase"); // purchase
+  // await clickIntoButton(page, "input.purchase"); // purchase
 };
 
-const getUserStatus = async function (page, username) {
+
+const timeout = function (ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+const getUserById = async function (page, id) {
+  await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
+  await page.waitForSelector("#username");
+
+  const downloadType = "#download_type";
+  await page.waitForSelector(downloadType);
+  await page.select("#download_type", "type=m3u&output=mpegts");
+
+  log(`getUserById ${id}`)
+
+  await timeout(100);
+
+  return {
+    user_name: await page.$eval("#username", input => input.getAttribute("value")),
+    password: await page.$eval("#password", input => input.getAttribute("value")),
+    exp_date: await page.$eval("#exp_date", input => input.getAttribute("value")),
+    download_url: await page.evaluate(() => document.querySelector('#download_url').value)
+  }
+}
+
+const getUserByName = async function (page, username) {
   await page.goto(PAGES.USERS, { waitUntil: "networkidle2", timeout: 0 });
   await page.waitForSelector(".table");
 
@@ -103,4 +175,4 @@ const clickIntoButton = async function (page, button) {
   await page.click(button);
 };
 
-export { init, getUserStatus, requestDemo, requestService, log };
+export { init, getUserById, requestDemo, requestService, requestRenovation, getUserByName, log };
