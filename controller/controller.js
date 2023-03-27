@@ -106,7 +106,7 @@ const requestService = async function (page, username, package_id) {
   await page.select("#package", package_id);
 
   await clickIntoButton(page, "a.btn-secondary"); // go to purchase
-  // await clickIntoButton(page, "input.purchase"); // purchase
+  await clickIntoButton(page, "input.purchase"); // purchase
 };
 
 
