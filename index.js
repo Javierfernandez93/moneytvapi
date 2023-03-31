@@ -1,5 +1,5 @@
 import express from "express";
-import { init, requestDemo, requestService, getUserById, requestRenovation, getUserByName, getLastMovies, log } from "./controller/controller.js";
+import { init, requestDemo, requestService, getUserById, requestRenovation, getUserByName, getLastMovies, requestFull, log } from "./controller/controller.js";
 import cors from 'cors'
 
 const app = express();
@@ -107,6 +107,28 @@ app.get("/user/demo", async (req, res) => {
     res.status(200).send({ 
       s: 1,
       user: user 
+    });
+  } else {
+    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+  }
+});
+
+app.get("/user/full", async (req, res) => {
+  const { id, package_id } = req.query;
+  
+  if(id)
+  {
+    log('settingup demo')
+
+    const client = await init();
+    await requestFull(client.page, id, package_id);
+    const user = await getUserById(client.page, id);
+
+    await client.browser.close()
+
+    res.status(200).send({ 
+      s: 1,
+      user: 1 
     });
   } else {
     res.status(200).send({ s: 0, r: 'NOT_USERNAME' });

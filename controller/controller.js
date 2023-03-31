@@ -6,7 +6,7 @@ const DEFAULT_PACKAGE = 2
 
 const init = async function () {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     defaultViewport: null,
     executablePath: await chromium.executablePath,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -29,6 +29,7 @@ const PAGES = {
   SERVICE: "http://51.222.43.170:25001/user_reseller.php",
   USERS: "http://51.222.43.170:25001/users.php",
   USER: "http://51.222.43.170:25001/user_reseller.php",
+  REQUEST_FULL: "http://51.222.43.170:25001/user_reseller.php",
   RENOVATION: "http://51.222.43.170:25001/user_reseller.php",
 };
 
@@ -48,6 +49,26 @@ const requestDemo = async function (page, username) {
   const downloadType = "#download_type";
   await page.waitForSelector(downloadType);
   await page.select("#download_type", "type=m3u&output=mpegts");
+
+  await clickIntoButton(page, "a.btn-secondary"); // go to purchase
+  await clickIntoButton(page, "input.purchase"); // purchase
+};
+
+const requestFull = async function (page, id, package_id) {
+  await page.goto(`${PAGES.REQUEST_FULL}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
+  await page.waitForSelector("#username");
+
+  const downloadType = "#download_type";
+  await page.waitForSelector(downloadType);
+  await page.select("#download_type", "type=m3u&output=mpegts");
+
+  await clickIntoButton(page, "button.swal-button"); // go to purchase
+
+  package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
+  log(`package ${package_id}`);
+  const extendPackage = "#package";
+  await page.waitForSelector(extendPackage);
+  await page.select("#package", String(package_id));
 
   await clickIntoButton(page, "a.btn-secondary"); // go to purchase
   await clickIntoButton(page, "input.purchase"); // purchase
@@ -75,7 +96,7 @@ const requestRenovation = async function (page, id, package_id) {
   log(`package ${package_id}`);
   const extendPackage = "#package";
   await page.waitForSelector(extendPackage);
-  await page.select("#package", package_id);
+  await page.select("#package", String(package_id));
 
   await clickIntoButton(page, "a.btn-secondary"); // go to purchase
   await clickIntoButton(page, "input.purchase"); // purchase
@@ -104,7 +125,7 @@ const requestService = async function (page, username, package_id) {
   log(`package ${package_id}`);
   const extendPackage = "#package";
   await page.waitForSelector(extendPackage);
-  await page.select("#package", package_id);
+  await page.select("#package", String(package_id));
 
   await clickIntoButton(page, "a.btn-secondary"); // go to purchase
   await clickIntoButton(page, "input.purchase"); // purchase
@@ -192,4 +213,4 @@ const clickIntoButton = async function (page, button) {
   await page.click(button);
 };
 
-export { init, getUserById, requestDemo, requestService, requestRenovation, getUserByName, getLastMovies, log };
+export { init, getUserById, requestDemo, requestService, requestRenovation, getUserByName, getLastMovies, requestFull, log };
