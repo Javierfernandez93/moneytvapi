@@ -100,13 +100,13 @@ app.get("/user/demo", async (req, res) => {
 
     const client = await init();
     await requestDemo(client.page, username);
-    // const user = await getUserByName(client.page, username);
+    const user = await getUserByName(client.page, username);
 
-    // await client.browser.close()
+    await client.browser.close()
 
     res.status(200).send({ 
       s: 1,
-      // user: user 
+      user: user 
     });
   } else {
     res.status(200).send({ s: 0, r: 'NOT_USERNAME' });

@@ -6,10 +6,13 @@ const DEFAULT_PACKAGE = 2
 
 const init = async function () {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: 'old',
     defaultViewport: null,
     executablePath: await chromium.executablePath,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    args: [
+      "--no-sandbox", 
+      "--disable-setuid-sandbox"
+    ],
   });
 
   const page = await browser.newPage();
