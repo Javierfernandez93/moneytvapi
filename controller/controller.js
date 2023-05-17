@@ -6,10 +6,10 @@ const DEFAULT_PACKAGE = 2
 
 const init = async function () {
   const browser = await puppeteer.launch({
-    headless: true,
+    headless: false,
     defaultViewport: null,
     executablePath: await chromium.executablePath,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    // args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   const page = await browser.newPage();
@@ -49,9 +49,9 @@ const requestDemo = async function (page, username) {
   const downloadType = "#download_type";
   await page.waitForSelector(downloadType);
   await page.select("#download_type", "type=m3u&output=mpegts");
-
-  await clickIntoButton(page, "a.btn-secondary"); // go to purchase
-  await clickIntoButton(page, "input.purchase"); // purchase
+  
+  await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
+  await clickIntoButton(page, "input.purchase"); 
 };
 
 const requestFull = async function (page, id, package_id) {
@@ -70,7 +70,7 @@ const requestFull = async function (page, id, package_id) {
   await page.waitForSelector(extendPackage);
   await page.select("#package", String(package_id));
 
-  await clickIntoButton(page, "a.btn-secondary"); // go to purchase
+  await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
   await clickIntoButton(page, "input.purchase"); // purchase
 };
 
@@ -98,7 +98,7 @@ const requestRenovation = async function (page, id, package_id) {
   await page.waitForSelector(extendPackage);
   await page.select("#package", String(package_id));
 
-  await clickIntoButton(page, "a.btn-secondary"); // go to purchase
+  await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
   await clickIntoButton(page, "input.purchase"); // purchase
 };
 
@@ -127,7 +127,7 @@ const requestService = async function (page, username, package_id) {
   await page.waitForSelector(extendPackage);
   await page.select("#package", String(package_id));
 
-  await clickIntoButton(page, "a.btn-secondary"); // go to purchase
+  await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
   await clickIntoButton(page, "input.purchase"); // purchase
 };
 
@@ -207,6 +207,24 @@ const getUserByName = async function (page, username) {
 
   return {};
 };
+
+const clickIntoButtonByQuery = async function (page, button) {
+  const btn = await page.$(button);
+
+  if(btn)
+  {
+    await btn.click();
+  }
+}
+
+const clickIntoButtonByText = async function (page, button) {
+  const [btn] = await page.$x(button);
+
+  if(btn)
+  {
+    await btn.click();
+  }
+}
 
 const clickIntoButton = async function (page, button) {
   await page.waitForSelector(button);
