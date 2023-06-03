@@ -1,5 +1,5 @@
 import express from "express";
-import { init, requestDemo, requestService, getUserById, requestRenovation, getUserByName, getLastMovies, requestFull, log } from "./controller/controller.js";
+import { init, requestDemo, requestService, getUserById, requestRenovation, getUserByName, getLastMovies, requestFull, existUserById, log } from "./controller/controller.js";
 import cors from 'cors'
 
 const app = express();
@@ -107,6 +107,26 @@ app.get("/user/demo", async (req, res) => {
     res.status(200).send({ 
       s: 1,
       user: user 
+    });
+  } else {
+    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+  }
+});
+
+app.get("/user/exist", async (req, res) => {
+  const { id } = req.query;
+  
+  if(id)
+  {
+    log('looking for user')
+
+    const client = await init();
+
+    const found = await existUserById(client.page, id);
+
+    res.status(200).send({ 
+      s: 1,
+      found: found
     });
   } else {
     res.status(200).send({ s: 0, r: 'NOT_USERNAME' });

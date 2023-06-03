@@ -6,7 +6,7 @@ const DEFAULT_PACKAGE = 2
 
 const init = async function () {
   const browser = await puppeteer.launch({
-    headless: 'old',
+    headless: 'old', // default 'old', local = false
     defaultViewport: null,
     executablePath: await chromium.executablePath,
     args: [
@@ -139,6 +139,14 @@ const timeout = function (ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+const existUserById = async function (page, id) {
+  await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 5000 });
+
+  const n = await page.$("#topnav");
+
+  return n != null
+}
+
 const getUserById = async function (page, id) {
   await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
   await page.waitForSelector("#username");
@@ -234,4 +242,4 @@ const clickIntoButton = async function (page, button) {
   await page.click(button);
 };
 
-export { init, getUserById, requestDemo, requestService, requestRenovation, getUserByName, getLastMovies, requestFull, log };
+export { init, getUserById, requestDemo, requestService, requestRenovation, getUserByName, getLastMovies, requestFull, existUserById, log };
