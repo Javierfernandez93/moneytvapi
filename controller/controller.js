@@ -13,6 +13,7 @@ const init = async function () {
       "--no-sandbox", 
       "--disable-setuid-sandbox"
     ],
+    // headless: false
   });
 
   const page = await browser.newPage();
@@ -49,9 +50,9 @@ const requestDemo = async function (page, username) {
   await page.waitForSelector("#username");
   await page.type("#username", username);
 
-  const downloadType = "#download_type";
-  await page.waitForSelector(downloadType);
-  await page.select("#download_type", "type=m3u&output=mpegts");
+  // const downloadType = "#download_type";
+  // await page.waitForSelector(downloadType);
+  // await page.select("#download_type", "type=m3u&output=mpegts");
   
   await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
   await clickIntoButton(page, "input.purchase"); 
@@ -61,9 +62,9 @@ const requestFull = async function (page, id, package_id) {
   await page.goto(`${PAGES.REQUEST_FULL}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
   await page.waitForSelector("#username");
 
-  const downloadType = "#download_type";
-  await page.waitForSelector(downloadType);
-  await page.select("#download_type", "type=m3u&output=mpegts");
+  // const downloadType = "#download_type";
+  // await page.waitForSelector(downloadType);
+  // await page.select("#download_type", "type=m3u&output=mpegts");
 
   await clickIntoButton(page, "button.swal-button"); // go to purchase
 
@@ -90,9 +91,9 @@ const requestRenovation = async function (page, id, package_id) {
   await page.goto(`${PAGES.RENOVATION}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
   await page.waitForSelector("#username");
 
-  const downloadType = "#download_type";
-  await page.waitForSelector(downloadType);
-  await page.select("#download_type", "type=m3u&output=mpegts");
+  // const downloadType = "#download_type";
+  // await page.waitForSelector(downloadType);
+  // await page.select("#download_type", "type=m3u&output=mpegts");
 
   package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
   
@@ -119,9 +120,9 @@ const requestService = async function (page, username, package_id) {
   await page.waitForSelector("#username");
   await page.type("#username", username);
 
-  const downloadType = "#download_type";
-  await page.waitForSelector(downloadType);
-  await page.select("#download_type", "type=m3u&output=mpegts");
+  // const downloadType = "#download_type";
+  // await page.waitForSelector(downloadType);
+  // await page.select("#download_type", "type=m3u&output=mpegts");
 
   package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
   
@@ -151,9 +152,9 @@ const getUserById = async function (page, id) {
   await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
   await page.waitForSelector("#username");
 
-  const downloadType = "#download_type";
-  await page.waitForSelector(downloadType);
-  await page.select("#download_type", "type=m3u&output=mpegts");
+  // const downloadType = "#download_type";
+  // await page.waitForSelector(downloadType);
+  // await page.select("#download_type", "type=m3u&output=mpegts");
 
   log(`getUserById ${id}`)
 
@@ -163,7 +164,7 @@ const getUserById = async function (page, id) {
     user_name: await page.$eval("#username", input => input.getAttribute("value")),
     password: await page.$eval("#password", input => input.getAttribute("value")),
     exp_date: await page.$eval("#exp_date", input => input.getAttribute("value")),
-    download_url: await page.evaluate(() => document.querySelector('#download_url').value)
+    // download_url: await page.evaluate(() => document.querySelector('#download_url').value)
   }
 }
 
