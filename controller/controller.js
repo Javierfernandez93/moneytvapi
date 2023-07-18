@@ -28,14 +28,14 @@ const init = async function () {
 };
 
 const PAGES = {
-  HOME: "http://51.222.43.170:25001/reseller.php",
-  LOGIN: "http://51.222.43.170:25001/",
-  TRIAL: "http://51.222.43.170:25001/user_reseller.php?trial",
-  SERVICE: "http://51.222.43.170:25001/user_reseller.php",
-  USERS: "http://51.222.43.170:25001/users.php",
-  USER: "http://51.222.43.170:25001/user_reseller.php",
-  REQUEST_FULL: "http://51.222.43.170:25001/user_reseller.php",
-  RENOVATION: "http://51.222.43.170:25001/user_reseller.php",
+  HOME: "http://185.39.50.222:25001/reseller.php",
+  LOGIN: "http://185.39.50.222:25001/",
+  TRIAL: "http://185.39.50.222:25001/user_reseller.php?trial",
+  SERVICE: "http://185.39.50.222:25001/user_reseller.php",
+  USERS: "http://185.39.50.222:25001/users.php",
+  USER: "http://185.39.50.222:25001/user_reseller.php",
+  REQUEST_FULL: "http://185.39.50.222:25001/user_reseller.php",
+  RENOVATION: "http://185.39.50.222:25001/user_reseller.php",
 };
 
 const doLogin = async function (page) {
