@@ -1,5 +1,6 @@
 import puppeteer from "puppeteer";
 import chromium from "chrome-aws-lambda";
+import config from '../config/config.json' assert {type: 'json'};
 
 const log = (message) => console.log(`SERVER ${message}`);
 const DEFAULT_PACKAGE = 2
@@ -13,7 +14,7 @@ const init = async function () {
       "--no-sandbox", 
       "--disable-setuid-sandbox"
     ],
-    slowMo: 15,
+    slowMo: 5,
     // headless: false
   });
 
@@ -22,6 +23,7 @@ const init = async function () {
   await doLogin(page);
 
   return {
+    s: 1,
     browser: browser,
     page: page,
   };
@@ -45,9 +47,16 @@ const doLogin = async function (page) {
     await page.type("#password", "momento7");
   
     await clickIntoButton(page, "#login_button"); // login
+
+    return {
+      s : 1
+    }
+
   } catch (e) {
-    console.log("error at login")
-    return false;
+    return {
+      s: 0,
+      r: config.STATUS.ERROR_AT_LOGIN,
+    };
   }
 };
 
@@ -65,7 +74,10 @@ const requestDemo = async function (page, username) {
     await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
     await clickIntoButton(page, "input.purchase"); 
   } catch (e) {
-    console.log(e);
+    return {
+      s: 0,
+      r: config.STATUS.ERROR_OPENING_PAGE,
+    };
   }
 };
 
@@ -81,16 +93,25 @@ const requestFull = async function (page, id, package_id) {
     await clickIntoButton(page, "button.swal-button"); // go to purchase
 
     package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
+    
     log(`package ${package_id}`);
+
     const extendPackage = "#package";
     await page.waitForSelector(extendPackage);
+
     await page.select("#package", String(package_id));
 
     await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
     await clickIntoButton(page, "input.purchase"); // purchase
+
+    return {
+      s: 1
+    }
   } catch (e) {
-    console.log(e);
-    return false;
+    return {
+      s: 0,
+      r: config.STATUS.ERROR_OPENING_PAGE,
+    };
   }
 };
 
@@ -104,22 +125,33 @@ const requestFull = async function (page, id, package_id) {
   13 = 13 meses sin xxx
 */
 const requestRenovation = async function (page, id, package_id) {
-  await page.goto(`${PAGES.RENOVATION}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
-  await page.waitForSelector("#username");
+  try {
+    await page.goto(`${PAGES.RENOVATION}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
+    await page.waitForSelector("#username");
 
-  // const downloadType = "#download_type";
-  // await page.waitForSelector(downloadType);
-  // await page.select("#download_type", "type=m3u&output=mpegts");
+    // const downloadType = "#download_type";
+    // await page.waitForSelector(downloadType);
+    // await page.select("#download_type", "type=m3u&output=mpegts");
 
-  package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
-  
-  log(`package ${package_id}`);
-  const extendPackage = "#package";
-  await page.waitForSelector(extendPackage);
-  await page.select("#package", String(package_id));
+    package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
+    
+    log(`package ${package_id}`);
+    const extendPackage = "#package";
+    await page.waitForSelector(extendPackage);
+    await page.select("#package", String(package_id));
 
-  await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
-  await clickIntoButton(page, "input.purchase"); // purchase
+    await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
+    await clickIntoButton(page, "input.purchase"); // purchase
+
+    return {
+      s: 1
+    }
+  } catch (e) {
+    return {
+      s: 0,
+      r: config.STATUS.ERROR_OPENING_PAGE,
+    };
+  }
 };
 
 /* @package_id = 2 Oficial 1 Mes Completo, 
@@ -132,23 +164,30 @@ const requestRenovation = async function (page, id, package_id) {
   13 = 13 meses sin xxx
 */
 const requestService = async function (page, username, package_id) {
-  await page.goto(PAGES.SERVICE, { waitUntil: "networkidle2", timeout: 0 });
-  await page.waitForSelector("#username");
-  await page.type("#username", username);
+  try {
+    await page.goto(PAGES.SERVICE, { waitUntil: "networkidle2", timeout: 0 });
+    await page.waitForSelector("#username");
+    await page.type("#username", username);
 
-  // const downloadType = "#download_type";
-  // await page.waitForSelector(downloadType);
-  // await page.select("#download_type", "type=m3u&output=mpegts");
+    // const downloadType = "#download_type";
+    // await page.waitForSelector(downloadType);
+    // await page.select("#download_type", "type=m3u&output=mpegts");
 
-  package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
-  
-  log(`package ${package_id}`);
-  const extendPackage = "#package";
-  await page.waitForSelector(extendPackage);
-  await page.select("#package", String(package_id));
+    package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
+    
+    log(`package ${package_id}`);
+    const extendPackage = "#package";
+    await page.waitForSelector(extendPackage);
+    await page.select("#package", String(package_id));
 
-  await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
-  await clickIntoButton(page, "input.purchase"); // purchase
+    await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
+    // await clickIntoButton(page, "input.purchase"); // purchase
+  } catch (e) {
+    return {
+      s: 0,
+      r: config.STATUS.ERROR_OPENING_PAGE,
+    };
+  }
 };
 
 
@@ -157,30 +196,63 @@ const timeout = function (ms) {
 }
 
 const existUserById = async function (page, id) {
-  await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 5000 });
+  await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
 
   const n = await page.$("#topnav");
 
-  return n != null
+  if (n != null) 
+  {
+    return {
+      s : 1
+    }
+  } else {
+    return {
+      s : 0
+    }
+  }
 }
 
 const getUserById = async function (page, id) {
-  await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
-  await page.waitForSelector("#username");
+  try {
+    const response = await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
 
-  // const downloadType = "#download_type";
-  // await page.waitForSelector(downloadType);
-  // await page.select("#download_type", "type=m3u&output=mpegts");
+    log(`getUserById ${id}`)
 
-  log(`getUserById ${id}`)
+    try {
+      const res = await page.waitForSelector("#username", {timeout: 1000});
 
-  await timeout(100);
-
-  return {
-    user_name: await page.$eval("#username", input => input.getAttribute("value")),
-    password: await page.$eval("#password", input => input.getAttribute("value")),
-    exp_date: await page.$eval("#exp_date", input => input.getAttribute("value")),
-    // download_url: await page.evaluate(() => document.querySelector('#download_url').value)
+      if(res)
+      {
+        return {
+          s : 1,
+          user_name: await page.$eval("#username", input => input.getAttribute("value")),
+          password: await page.$eval("#password", input => input.getAttribute("value")),
+          exp_date: await page.$eval("#exp_date", input => input.getAttribute("value")),
+          // download_url: await page.evaluate(() => document.querySelector('#download_url').value)
+        }
+      } else {
+        return {
+          r : config.STATUS.USERNAME_NOT_FOUND,
+          s : 0,
+        }
+      }
+    } catch (e) {
+      if (e instanceof TimeoutError) {
+        return {
+          r : config.STATUS.USERNAME_NOT_FOUND,
+          s : 0,
+        }
+      } else {
+        return {
+          r : config.STATUS.USERNAME_NOT_FOUND,
+          s : 0,
+        }
+      }
+    }    
+  } catch (e) {
+    return {
+      s : 1,
+    }
   }
 }
 

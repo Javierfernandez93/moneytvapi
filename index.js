@@ -1,6 +1,7 @@
 import express from "express";
 import { init, requestDemo, requestService, getUserById, requestRenovation, getUserByName, getLastMovies, requestFull, existUserById, log } from "./controller/controller.js";
 import cors from 'cors'
+import config from './config/config.json' assert {type: 'json'};
 
 const app = express();
 
@@ -43,7 +44,10 @@ app.get("/user/get", async (req, res) => {
 
     res.status(200).send({ user: user, s: 1 });
   } else {
-    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+    res.status(200).send({ 
+      s: 0, 
+      r: config.STATUS.NOT_ID
+    });
   }
 });
 
@@ -55,17 +59,27 @@ app.get("/user/renovation", async (req, res) => {
     log(`settingup renovation ${id} ${package_id}`)
 
     const client = await init();
-    await requestRenovation(client.page, id, package_id);
-    const user = await getUserById(client.page, id);
-  
-    await client.browser.close();
+    
+    const response = await requestRenovation(client.page, id, package_id);
 
-    res.status(200).send({ 
-      s: 1,
-      user: user
-    });
+    if(response.s == 1)
+    {
+      const user = await getUserById(client.page, id);
+    
+      await client.browser.close();
+  
+      res.status(200).send({ 
+        s: 1,
+        user: user
+      });
+    } else {
+      res.status(200).send(response);
+    }
   } else {
-    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+    res.status(200).send({ 
+      s: 0, 
+      r: config.STATUS.NOT_ID
+    });
   }
 })
 
@@ -87,7 +101,10 @@ app.get("/user/service", async (req, res) => {
       user: user
     });
   } else {
-    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+    res.status(200).send({ 
+      s: 0, 
+      r: config.STATUS.USERNAME_NOT_FOUND
+    });
   }
 })
 
@@ -99,17 +116,27 @@ app.get("/user/demo", async (req, res) => {
     log('settingup demo')
 
     const client = await init();
-    await requestDemo(client.page, username);
-    const user = await getUserByName(client.page, username);
 
-    await client.browser.close()
+    if(client.s == 1)
+    {
+      await requestDemo(client.page, username);
 
-    res.status(200).send({ 
-      s: 1,
-      user: user 
-    });
+      const user = await getUserByName(client.page, username);
+  
+      await client.browser.close()
+  
+      res.status(200).send({ 
+        s: 1,
+        user: user 
+      });
+    } else {
+      res.status(200).send(client)
+    }
   } else {
-    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+    res.status(200).send({ 
+      s: 0, 
+      r: config.STATUS.USERNAME_NOT_FOUND
+    });
   }
 });
 
@@ -122,14 +149,27 @@ app.get("/user/exist", async (req, res) => {
 
     const client = await init();
 
-    const found = await existUserById(client.page, id);
+    const response = await existUserById(client.page, id);
 
-    res.status(200).send({ 
-      s: 1,
-      found: found
-    });
+    if(response.s == 1)
+    {
+      await client.browser.close()
+
+      res.status(200).send({ 
+        s: 1,
+        found: true
+      });
+    } else {
+      res.status(200).send({ 
+        s: 1,
+        found: config.STATUS.USERNAME_NOT_FOUND
+      });
+    }
   } else {
-    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+    res.status(200).send({ 
+      s: 0, 
+      r: config.STATUS.NOT_ID
+    });
   }
 });
 
@@ -141,17 +181,27 @@ app.get("/user/full", async (req, res) => {
     log('settingup full')
 
     const client = await init();
-    await requestFull(client.page, id, package_id);
-    const user = await getUserById(client.page, id);
+    
+    const response = await requestFull(client.page, id, package_id);
 
-    await client.browser.close()
-
-    res.status(200).send({ 
-      s: 1,
-      user: 1 
-    });
+    if(response.s == 1)
+    {
+      const user = await getUserById(client.page, id);
+  
+      await client.browser.close()
+  
+      res.status(200).send({ 
+        s: 1,
+        user: user
+      });
+    } else {
+      res.status(200).send(response);
+    }
   } else {
-    res.status(200).send({ s: 0, r: 'NOT_USERNAME' });
+    res.status(200).send({ 
+      s: 0, 
+      r: config.STATUS.NOT_ID
+    });
   }
 });
 
