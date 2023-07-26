@@ -102,7 +102,7 @@ const requestFull = async function (page, id, package_id) {
     await page.select("#package", String(package_id));
 
     await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
-    await clickIntoButton(page, "input.purchase"); // purchase
+    // await clickIntoButton(page, "input.purchase"); // purchase
 
     return {
       s: 1
@@ -179,9 +179,11 @@ const requestService = async function (page, username, package_id) {
     const extendPackage = "#package";
     await page.waitForSelector(extendPackage);
     await page.select("#package", String(package_id));
-
+    
     await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
-    // await clickIntoButton(page, "input.purchase"); // purchase
+    
+    await page.waitForSelector("input.purchase");
+    await clickIntoButton(page, "input.purchase"); // purchase
   } catch (e) {
     return {
       s: 0,
