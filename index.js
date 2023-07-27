@@ -5,6 +5,8 @@ import config from './config/config.json' assert {type: 'json'};
 
 const app = express();
 
+process.setMaxListeners(0)
+
 app.use(cors())
 // app.use('/', import('./routes/api'))
 // app.use(cors())
