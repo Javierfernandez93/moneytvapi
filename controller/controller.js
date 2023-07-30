@@ -3,7 +3,7 @@ import chromium from "chrome-aws-lambda";
 import config from '../config/config.json' assert {type: 'json'};
 
 const log = (message) => console.log(`SERVER ${message}`);
-const DEFAULT_PACKAGE = 2
+const DEFAULT_PACKAGE = 78
 
 const init = async function () {
   const browser = await puppeteer.launch({
@@ -30,21 +30,21 @@ const init = async function () {
 };
 
 const PAGES = {
-  HOME: "http://185.39.50.222:25001/reseller.php",
-  LOGIN: "http://185.39.50.222:25001/",
-  TRIAL: "http://185.39.50.222:25001/user_reseller.php?trial",
-  SERVICE: "http://185.39.50.222:25001/user_reseller.php",
-  USERS: "http://185.39.50.222:25001/users.php",
-  USER: "http://185.39.50.222:25001/user_reseller.php",
-  REQUEST_FULL: "http://185.39.50.222:25001/user_reseller.php",
-  RENOVATION: "http://185.39.50.222:25001/user_reseller.php",
+  HOME: "http://zonamovie.live/",
+  LOGIN: "http://zonamovie.live/Reventa2023/login",
+  TRIAL: "http://zonamovie.live/Reventa2023/line?trial=1",
+  SERVICE: "http://zonamovie.live/Reventa2023/line",
+  USERS: "http://zonamovie.live/Reventa2023/lines",
+  USER: "http://zonamovie.live/Reventa2023/",
+  REQUEST_FULL: "http://zonamovie.live/Reventa2023/",
+  RENOVATION: "http://zonamovie.live/Reventa2023/",
 };
 
 const doLogin = async function (page) {
   try {
     await page.goto(PAGES.LOGIN);
-    await page.type("#username", "vetv02");
-    await page.type("#password", "momento7");
+    await page.type("#username", "Moneytv2023");
+    await page.type("#password", "Momento7#");
   
     await clickIntoButton(page, "#login_button"); // login
 
@@ -60,19 +60,26 @@ const doLogin = async function (page) {
   }
 };
 
-const requestDemo = async function (page, username) {
+const requestDemo = async function (page, data) {
   try {
+    console.log(data)
     await page.goto(PAGES.TRIAL, { waitUntil: "networkidle2", timeout: 0 });
+    
     await page.waitForSelector("#username");
-    await page.type("#username", username);
+    await page.type("#username", data.username);
+    
+    await page.waitForSelector("#password");
+    await page.type("#password", data.password);
   
     // const downloadType = "#download_type";
     // await page.select("#download_type", "type=m3u&output=mpegts");
     
+    await page.select("#package", "167");
+    
     await page.waitForSelector('a[href="#review-purchase"]');
     
     await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
-    await clickIntoButton(page, "input.purchase"); 
+    await clickIntoButton(page, "input#submit_button"); 
   } catch (e) {
     return {
       s: 0,
@@ -163,19 +170,20 @@ const requestRenovation = async function (page, id, package_id) {
   12 = 12 meses completo
   13 = 13 meses sin xxx
 */
-const requestService = async function (page, username, package_id) {
+const requestService = async function (page, data) {
   try {
     await page.goto(PAGES.SERVICE, { waitUntil: "networkidle2", timeout: 0 });
+    
     await page.waitForSelector("#username");
-    await page.type("#username", username);
+    await page.type("#username", data.username);
+    
+    await page.waitForSelector("#password");
+    await page.type("#password", data.password);
 
-    // const downloadType = "#download_type";
-    // await page.waitForSelector(downloadType);
-    // await page.select("#download_type", "type=m3u&output=mpegts");
-
-    package_id = package_id != undefined ? package_id : DEFAULT_PACKAGE
+    let package_id = data.package_id != undefined ? data.package_id : DEFAULT_PACKAGE
     
     log(`package ${package_id}`);
+
     const extendPackage = "#package";
     await page.waitForSelector(extendPackage);
     await page.select("#package", String(package_id));

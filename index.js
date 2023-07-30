@@ -30,6 +30,29 @@ app.get("/movies/last", async (req, res) => {
   res.status(200).send({ movies: movies, s: 1 });
 })
 
+app.get("/user/get/username", async (req, res) => {
+  const { username } = req.query;
+
+  if(username)
+  {
+    log('gettinguserbyusername', username);
+    
+    const client = await init()
+  
+    const user = await getUserByName(client.page, username);
+    
+    await client.browser.close();
+    
+    log('done')
+
+    res.status(200).send({ user: user, s: 1 });
+  } else {
+    res.status(200).send({ 
+      s: 0, 
+      r: config.STATUS.NOT_ID
+    });
+  }
+})
 app.get("/user/get", async (req, res) => {
   const { id } = req.query;
 
@@ -38,6 +61,7 @@ app.get("/user/get", async (req, res) => {
     log('gettinguser')
     
     const client = await init()
+    
     const user = await getUserById(client.page, id);
     
     await client.browser.close();
@@ -86,22 +110,36 @@ app.get("/user/renovation", async (req, res) => {
 })
 
 app.get("/user/service", async (req, res) => {
-  const { username, package_id } = req.query;
+  const { username, password, package_id } = req.query;
   
   if(username)
   {
-    log('settingup service')
+    if(password)
+    {
+      log('settingup service')
 
-    const client = await init();
-    await requestService(client.page, username, package_id);
-    const user = await getUserByName(client.page, username);
-  
-    await client.browser.close();
+      const client = await init();
 
-    res.status(200).send({ 
-      s: 1,
-      user: user
-    });
+      await requestService(client.page, {
+        username : username,
+        password : password,
+        package_id : package_id
+      });
+
+      const user = await getUserByName(client.page, username);
+    
+      await client.browser.close();
+
+      res.status(200).send({ 
+        s: 1,
+        user: user
+      });
+    } else {
+      res.status(200).send({ 
+        s: 0, 
+        r: config.STATUS.PASSWORD_NOT_FOUND
+      });
+    }
   } else {
     res.status(200).send({ 
       s: 0, 
@@ -111,28 +149,39 @@ app.get("/user/service", async (req, res) => {
 })
 
 app.get("/user/demo", async (req, res) => {
-  const { username } = req.query;
+  const { username, password } = req.query;
   
   if(username)
   {
-    log('settingup demo')
-
-    const client = await init();
-
-    if(client.s == 1)
+    if(password)
     {
-      await requestDemo(client.page, username);
-
-      const user = await getUserByName(client.page, username);
+      log('settingup demo')
   
-      await client.browser.close()
+      const client = await init();
   
-      res.status(200).send({ 
-        s: 1,
-        user: user 
-      });
+      if(client.s == 1)
+      {
+        await requestDemo(client.page, {
+          username: username, 
+          password: password
+        });
+  
+        const user = await getUserByName(client.page, username);
+    
+        await client.browser.close()
+    
+        res.status(200).send({ 
+          s: 1,
+          user: user
+        });
+      } else {
+        res.status(200).send(client)
+      }
     } else {
-      res.status(200).send(client)
+      res.status(200).send({ 
+        s: 0, 
+        r: config.STATUS.PASSWORD_NOT_FOUND
+      });
     }
   } else {
     res.status(200).send({ 
