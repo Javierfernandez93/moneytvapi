@@ -27,17 +27,17 @@ const init = async function () {
     browser: browser,
     page: page,
   };
-};
+};http://zonamovie.live:25500/reseller.php#
 
 const PAGES = {
-  HOME: "http://zonamovie.live/",
-  LOGIN: "http://zonamovie.live/Reventa2023/login",
-  TRIAL: "http://zonamovie.live/Reventa2023/line?trial=1",
-  SERVICE: "http://zonamovie.live/Reventa2023/line",
-  USERS: "http://zonamovie.live/Reventa2023/lines",
-  USER: "http://zonamovie.live/Reventa2023/",
-  REQUEST_FULL: "http://zonamovie.live/Reventa2023/",
-  RENOVATION: "http://zonamovie.live/Reventa2023/",
+  HOME: "http://zonamovie.live:25500/",
+  LOGIN: "http://zonamovie.live:25500/Reventa2023/login",
+  TRIAL: "http://zonamovie.live:25500/Reventa2023/line?trial=1",
+  SERVICE: "http://zonamovie.live:25500/Reventa2023/line",
+  USERS: "http://zonamovie.live:25500/Reventa2023/lines",
+  USER: "http://zonamovie.live:25500/Reventa2023/",
+  REQUEST_FULL: "http://zonamovie.live:25500/Reventa2023/",
+  RENOVATION: "http://zonamovie.live:25500/Reventa2023/",
 };
 
 const doLogin = async function (page) {
