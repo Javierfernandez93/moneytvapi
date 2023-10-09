@@ -54,8 +54,6 @@ const doLogin = async function (page) {
   try {
     await page.goto(PAGES.LOGIN);
     
-    await page.solveRecaptchas()
-    
     await page.type("#username", "funnelmillonario");
     await page.type("#password", "exitoconjavi2024");
   
@@ -75,7 +73,6 @@ const doLogin = async function (page) {
 
 const requestDemo = async function (page, data) {
   try {
-    console.log(data)
     await page.goto(PAGES.TRIAL, { waitUntil: "networkidle2", timeout: 0 });
     
     await page.waitForSelector("#username");
@@ -87,7 +84,7 @@ const requestDemo = async function (page, data) {
     // const downloadType = "#download_type";
     // await page.select("#download_type", "type=m3u&output=mpegts");
     
-    await page.select("#package", "167");
+    await page.select("#package", "91");
     
     await page.waitForSelector('a[href="#review-purchase"]');
     
