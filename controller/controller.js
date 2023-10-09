@@ -1,12 +1,11 @@
-import puppeteer from "puppeteer-extra"
+import puppeteer from "puppeteer"
 import chromium from "chrome-aws-lambda";
 import config from '../config/config.json' assert {type: 'json'};
-import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 
 const log = (message) => console.log(`SERVER ${message}`);
 const DEFAULT_PACKAGE = 78
 
-puppeteer.use(StealthPlugin()) 
+// puppeteer.use(StealthPlugin()) 
 // puppeteer.use(
 //   RecaptchaPlugin({
 //     provider: { 
