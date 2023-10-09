@@ -1,9 +1,19 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra"
 import chromium from "chrome-aws-lambda";
 import config from '../config/config.json' assert {type: 'json'};
+import StealthPlugin from 'puppeteer-extra-plugin-stealth'
 
 const log = (message) => console.log(`SERVER ${message}`);
 const DEFAULT_PACKAGE = 78
+
+puppeteer.use(StealthPlugin()) 
+// puppeteer.use(
+//   RecaptchaPlugin({
+//     provider: { 
+//       id: '2captcha', token: '449c39aa980d73be0a0f311ec44210a5' },
+//       visualFeedback: true
+//   })
+// );
 
 const init = async function () {
   const browser = await puppeteer.launch({
@@ -27,24 +37,27 @@ const init = async function () {
     browser: browser,
     page: page,
   };
-};http://zonamovie.live:25500/reseller.php#
+};
 
 const PAGES = {
-  HOME: "http://zonamovie.live:25500/",
-  LOGIN: "http://zonamovie.live:25500/Reventa2023/login",
-  TRIAL: "http://zonamovie.live:25500/Reventa2023/line?trial=1",
-  SERVICE: "http://zonamovie.live:25500/Reventa2023/line",
-  USERS: "http://zonamovie.live:25500/Reventa2023/lines",
-  USER: "http://zonamovie.live:25500/Reventa2023/",
-  REQUEST_FULL: "http://zonamovie.live:25500/Reventa2023/",
-  RENOVATION: "http://zonamovie.live:25500/Reventa2023/",
+  HOME: "http://xyz.lattv.com.co:25500/",
+  LOGIN: "http://xyz.lattv.com.co:8080/Reseller/login",
+  TRIAL: "http://xyz.lattv.com.co:8080/Reseller/line?trial=1",
+  SERVICE: "http://xyz.lattv.com.co:8080/Reseller/line",
+  USERS: "http://xyz.lattv.com.co:8080/Reseller/lines",
+  USER: "http://xyz.lattv.com.co:8080/Reseller/",
+  REQUEST_FULL: "http://xyz.lattv.com.co:8080/Reseller/",
+  RENOVATION: "http://xyz.lattv.com.co:8080/Reseller/",
 };
 
 const doLogin = async function (page) {
   try {
     await page.goto(PAGES.LOGIN);
-    await page.type("#username", "Moneytv2023");
-    await page.type("#password", "Momento7#");
+    
+    await page.solveRecaptchas()
+    
+    await page.type("#username", "funnelmillonario");
+    await page.type("#password", "exitoconjavi2024");
   
     await clickIntoButton(page, "#login_button"); // login
 
