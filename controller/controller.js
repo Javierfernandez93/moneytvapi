@@ -16,7 +16,7 @@ const DEFAULT_PACKAGE = 78
 
 const init = async function () {
   const browser = await puppeteer.launch({
-    headless: 'old', // default 'old', local = false
+    headless: false, // default 'old', local = false
     defaultViewport: null,
     executablePath: await chromium.executablePath,
     args: [
@@ -107,7 +107,7 @@ const requestDemo = async function (page, data) {
 
 const requestFull = async function (page, id, package_id) {
   try {
-    await page.goto(`${PAGES.REQUEST_FULL}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
+    await page.goto(`${PAGES.REQUEST_FULL}line?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
     await page.waitForSelector("#username");
 
     // const downloadType = "#download_type";
@@ -150,7 +150,8 @@ const requestFull = async function (page, id, package_id) {
 */
 const requestRenovation = async function (page, id, package_id) {
   try {
-    await page.goto(`${PAGES.RENOVATION}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
+    console.log(`${PAGES.RENOVATION}line?id=${id}`);
+    await page.goto(`${PAGES.RENOVATION}line?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
     await page.waitForSelector("#username");
 
     // const downloadType = "#download_type";
@@ -223,7 +224,7 @@ const timeout = function (ms) {
 }
 
 const existUserById = async function (page, id) {
-  await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
+  await page.goto(`${PAGES.USER}line?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
 
   const n = await page.$("#topnav");
 
@@ -241,7 +242,7 @@ const existUserById = async function (page, id) {
 
 const getUserById = async function (page, id) {
   try {
-    const response = await page.goto(`${PAGES.USER}?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
+    const response = await page.goto(`${PAGES.USER}line?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
 
     log(`getUserById ${id}`)
 
