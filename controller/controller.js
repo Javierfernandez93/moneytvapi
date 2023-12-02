@@ -14,28 +14,45 @@ const DEFAULT_PACKAGE = 78
 //   })
 // );
 
-const init = async function () {
-  const browser = await puppeteer.launch({
-    headless: 'old', // default 'old', local = false
-    defaultViewport: null,
-    executablePath: await chromium.executablePath,
-    args: [
-      '--no-sandbox',
-      '--disable-web-security',
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--single-process',
-      '--disable-gpu'
-    ],
-    slowMo: 5,
-    // headless: false
-  });
+let page = null
+let browser = null
+let cookies = null
 
-  const page = await browser.newPage();
+const loadBrowser = async function () {
+  if(browser == null)
+  {
+    browser = await puppeteer.launch({
+      headless: 'old', // default 'old', local = false
+      // headless: false,
+      defaultViewport: null,
+      executablePath: await chromium.executablePath,
+      args: [
+        '--no-sandbox',
+        '--disable-web-security',
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--single-process',
+        '--disable-gpu'
+      ],
+      slowMo: 5
+    });
+  }
+}
+
+const getCurrentPage = async function () {
+  if(page == null) 
+  {
+    page = await browser.newPage();
+  }
+}
+
+const init = async function () {
+  await loadBrowser()
+  await getCurrentPage()
 
   await doLogin(page);
 
@@ -48,6 +65,7 @@ const init = async function () {
 
 const PAGES = {
   HOME: "http://xyz.lattv.com.co:25500/",
+  DASHBOARD: "http://xyz.lattv.com.co:25500/Reseller/dashboard",
   LOGIN: "http://xyz.lattv.com.co:8080/Reseller/login",
   TRIAL: "http://xyz.lattv.com.co:8080/Reseller/line?trial=1",
   SERVICE: "http://xyz.lattv.com.co:8080/Reseller/line",
@@ -61,10 +79,17 @@ const doLogin = async function (page) {
   try {
     await page.goto(PAGES.LOGIN);
     
-    await page.type("#username", "funnelmillonario");
-    await page.type("#password", "exitoconjavi2024");
+    if(cookies != null)
+    {
+      await page.setCookie(...cookies)
+    } else {
+      await page.type("#username", "funnelmillonario");
+      await page.type("#password", "exitoconjavi2024");
+    
+      await clickIntoButton(page, "#login_button"); // login
   
-    await clickIntoButton(page, "#login_button"); // login
+      cookies = JSON.stringify(await page.cookies())
+    }
 
     return {
       s : 1
@@ -80,6 +105,8 @@ const doLogin = async function (page) {
 
 const requestDemo = async function (page, data) {
   try {
+    // await doLogin()
+
     await page.goto(PAGES.TRIAL, { waitUntil: "networkidle2", timeout: 0 });
     
     await page.waitForSelector("#username");

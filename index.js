@@ -23,7 +23,7 @@ app.get("/movies/last", async (req, res) => {
   const client = await init()
   const movies = await getLastMovies(client.page);
     
-  await client.browser.close();
+  // await client.browser.close();
   
   log('done')
 
@@ -41,7 +41,7 @@ app.get("/user/get/username", async (req, res) => {
   
     const user = await getUserByName(client.page, username);
     
-    await client.browser.close();
+    // await client.browser.close();
     
     log('done')
 
@@ -64,7 +64,7 @@ app.get("/user/get", async (req, res) => {
     
     const user = await getUserById(client.page, id);
     
-    await client.browser.close();
+    // await client.browser.close();
     
     log('done')
 
@@ -92,7 +92,7 @@ app.get("/user/renovation", async (req, res) => {
     {
       const user = await getUserById(client.page, id);
     
-      await client.browser.close();
+      // await client.browser.close();
   
       res.status(200).send({ 
         s: 1,
@@ -128,7 +128,7 @@ app.get("/user/service", async (req, res) => {
 
       const user = await getUserByName(client.page, username);
     
-      await client.browser.close();
+      // await client.browser.close();
 
       res.status(200).send({ 
         s: 1,
@@ -168,7 +168,7 @@ app.get("/user/demo", async (req, res) => {
   
         const user = await getUserByName(client.page, username);
     
-        await client.browser.close()
+        // await client.browser.close()
     
         res.status(200).send({ 
           s: 1,
@@ -204,7 +204,7 @@ app.get("/user/exist", async (req, res) => {
 
     if(response.s == 1)
     {
-      await client.browser.close()
+      // await client.browser.close()
 
       res.status(200).send({ 
         s: 1,
@@ -239,7 +239,7 @@ app.get("/user/full", async (req, res) => {
     {
       const user = await getUserById(client.page, id);
   
-      await client.browser.close()
+      // await client.browser.close()
   
       res.status(200).send({ 
         s: 1,
