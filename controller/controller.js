@@ -79,17 +79,17 @@ const doLogin = async function (page) {
   try {
     await page.goto(PAGES.LOGIN);
     
-    if(cookies != null)
-    {
-      await page.setCookie(...cookies)
-    } else {
+    // if(cookies != null)
+    // {
+    //   await page.setCookie(...cookies)
+    // } else {
       await page.type("#username", "funnelmillonario");
       await page.type("#password", "exitoconjavi2024");
     
       await clickIntoButton(page, "#login_button"); // login
   
       cookies = JSON.stringify(await page.cookies())
-    }
+    // }
 
     return {
       s : 1
