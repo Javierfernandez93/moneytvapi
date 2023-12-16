@@ -23,7 +23,7 @@ const loadBrowser = async function () {
   {
     browser = await puppeteer.launch({
       headless: 'old', // default 'old', local = false
-      // headless: false,
+      headless: false,
       defaultViewport: null,
       executablePath: await chromium.executablePath,
       args: [
@@ -69,7 +69,7 @@ const PAGES = {
   LOGIN: "http://xyz.lattv.com.co:8080/Reseller/login",
   TRIAL: "http://xyz.lattv.com.co:8080/Reseller/line?trial=1",
   SERVICE: "http://xyz.lattv.com.co:8080/Reseller/line",
-  USERS: "http://xyz.lattv.com.co:8080/Reseller/lines",
+  USERS: "http://xyz.lattv.com.co:8080/Reseller/lines?order=0&dir=desc",
   USER: "http://xyz.lattv.com.co:8080/Reseller/",
   REQUEST_FULL: "http://xyz.lattv.com.co:8080/Reseller/",
   RENOVATION: "http://xyz.lattv.com.co:8080/Reseller/",
@@ -79,6 +79,11 @@ const doLogin = async function (page) {
   try {
     await page.goto(PAGES.LOGIN);
     
+    if(cookies != null)
+    {
+      await page.setCookie(...cookies)
+    }
+
     // if(cookies != null)
     // {
     //   await page.setCookie(...cookies)
@@ -86,7 +91,11 @@ const doLogin = async function (page) {
       await page.type("#username", "funnelmillonario");
       await page.type("#password", "exitoconjavi2024");
     
-      await clickIntoButton(page, "#login_button"); // login
+      
+    await Promise.all([
+      clickIntoButton(page, "#login_button"),
+      page.waitForNavigation({ waitUntil: "networkidle0" }),
+    ])
   
       cookies = JSON.stringify(await page.cookies())
     // }
@@ -122,8 +131,12 @@ const requestDemo = async function (page, data) {
     
     await page.waitForSelector('a[href="#review-purchase"]');
     
-    await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
-    await clickIntoButton(page, "input#submit_button"); 
+    await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]'),
+    await clickIntoButton(page, "input#submit_button"),
+    await page.waitForNavigation({ waitUntil: "networkidle0" })
+
+
+    console.log(page.url())
   } catch (e) {
     return {
       s: 0,
@@ -152,9 +165,9 @@ const requestFull = async function (page, id, package_id) {
 
     await page.select("#package", String(package_id));
 
-    await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]')
-    // await clickIntoButton(page, "input.purchase"); // purchase
-
+    await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]'),
+    await page.waitForNavigation({ waitUntil: "networkidle0" })
+    
     return {
       s: 1
     }
@@ -328,7 +341,11 @@ const getLastMovies = async function (page, username) {
 }
 
 const getUserByName = async function (page, username) {
-  await page.goto(PAGES.USERS, { waitUntil: "networkidle2", timeout: 0 });
+  if(page.url() != PAGES.USERS)
+  {
+    await page.goto(PAGES.USERS, { waitUntil: "networkidle2", timeout: 0 });
+  }
+  
   await page.waitForSelector(".table");
 
   const headers = await page.$$eval("thead tr", (rows) => {
