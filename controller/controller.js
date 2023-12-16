@@ -23,7 +23,7 @@ const loadBrowser = async function () {
   {
     browser = await puppeteer.launch({
       headless: 'old', // default 'old', local = false
-      headless: false,
+      // headless: false,
       defaultViewport: null,
       executablePath: await chromium.executablePath,
       args: [
@@ -345,7 +345,7 @@ const getUserByName = async function (page, username) {
   {
     await page.goto(PAGES.USERS, { waitUntil: "networkidle2", timeout: 0 });
   }
-  
+
   await page.waitForSelector(".table");
 
   const headers = await page.$$eval("thead tr", (rows) => {
