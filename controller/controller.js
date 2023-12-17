@@ -5,25 +5,18 @@ import config from '../config/config.json' assert {type: 'json'};
 const log = (message) => console.log(`SERVER ${message}`);
 const DEFAULT_PACKAGE = 78
 
-// puppeteer.use(StealthPlugin()) 
-// puppeteer.use(
-//   RecaptchaPlugin({
-//     provider: { 
-//       id: '2captcha', token: '449c39aa980d73be0a0f311ec44210a5' },
-//       visualFeedback: true
-//   })
-// );
-
 let page = null
 let browser = null
 let cookies = null
 
 const loadBrowser = async function () {
+  console.log('loading browser ')
   if(browser == null)
   {
+    console.log('new')
     browser = await puppeteer.launch({
       headless: 'old', // default 'old', local = false
-      // headless: false,
+      headless: false,
       defaultViewport: null,
       executablePath: await chromium.executablePath,
       args: [
@@ -40,13 +33,19 @@ const loadBrowser = async function () {
       ],
       slowMo: 5
     });
+  } else {
+    console.log('memory')
   }
 }
 
 const getCurrentPage = async function () {
+  console.log('get current page ')
   if(page == null) 
   {
+    console.log('new')
     page = await browser.newPage();
+  } else {
+    console.log('memory')
   }
 }
 
@@ -67,6 +66,7 @@ const PAGES = {
   HOME: "http://xyz.lattv.com.co:25500/",
   DASHBOARD: "http://xyz.lattv.com.co:25500/Reseller/dashboard",
   LOGIN: "http://xyz.lattv.com.co:8080/Reseller/login",
+  LOGIN: "http://xyz.lattv.com.co:8080/Reseller/login?referrer=logout",
   TRIAL: "http://xyz.lattv.com.co:8080/Reseller/line?trial=1",
   SERVICE: "http://xyz.lattv.com.co:8080/Reseller/line",
   USERS: "http://xyz.lattv.com.co:8080/Reseller/lines?order=0&dir=desc",
@@ -75,29 +75,55 @@ const PAGES = {
   RENOVATION: "http://xyz.lattv.com.co:8080/Reseller/",
 };
 
+const isLogged = async function (page) {
+  if(page.url() == PAGES.LOGIN || page.url() == PAGES.LOGIN_OUT)
+  {
+    return false
+  }
+  
+  let cookies = JSON.stringify(await page.cookies())
+
+  console.log(`cookies.length = ${cookies.length}`)
+
+  return cookies.length > 251 ? true : false
+}
+
 const doLogin = async function (page) {
+  console.log('do login')
+
+  let hasSession = await isLogged(page)
+
+  console.log('has session', hasSession)
   try {
-    await page.goto(PAGES.LOGIN);
-    
-    if(cookies != null)
+    if(hasSession)
     {
       await page.setCookie(...cookies)
+
+      return {
+        s: 1
+      }
     }
 
-    // if(cookies != null)
-    // {
-    //   await page.setCookie(...cookies)
-    // } else {
-      await page.type("#username", "funnelmillonario");
-      await page.type("#password", "exitoconjavi2024");
+    await page.goto(PAGES.LOGIN, { waitUntil: "networkidle2", timeout: 0 });
+
+    await Promise.all([
+      page.waitForSelector("#username"),
+      page.waitForSelector("#password")
+    ])
     
-      
+    await page.type("#username", "funnelmillonario");
+    await page.type("#password", "exitoconjavi2024");
+    
+    console.log('loggin')
+
     await Promise.all([
       clickIntoButton(page, "#login_button"),
-      page.waitForNavigation({ waitUntil: "networkidle0" }),
+      page.waitForNavigation({ waitUntil: "networkidle2", timeout: 0 }),
     ])
+
+    console.log('logged')
   
-      cookies = JSON.stringify(await page.cookies())
+    cookies = JSON.stringify(await page.cookies())
     // }
 
     return {
@@ -113,19 +139,25 @@ const doLogin = async function (page) {
 };
 
 const requestDemo = async function (page, data) {
+  console.log("requestDemo")
   try {
-    // await doLogin()
+    // await doLogin(page)
+
+    console.log("[logged]")
 
     await page.goto(PAGES.TRIAL, { waitUntil: "networkidle2", timeout: 0 });
     
-    await page.waitForSelector("#username");
+    console.log("[goToTrialsPassed]")
+
+    Promise.all([
+      page.waitForSelector("#username"),
+      page.waitForSelector("#password")
+    ])
+
+    console.log("[waitSelectorsPassed]")
+
     await page.type("#username", data.username);
-    
-    await page.waitForSelector("#password");
     await page.type("#password", data.password);
-  
-    // const downloadType = "#download_type";
-    // await page.select("#download_type", "type=m3u&output=mpegts");
     
     await page.select("#package", "91");
     
@@ -133,8 +165,8 @@ const requestDemo = async function (page, data) {
     
     await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]'),
     await clickIntoButton(page, "input#submit_button"),
-    await page.waitForNavigation({ waitUntil: "networkidle0" })
 
+    await page.waitForNavigation({ waitUntil: "networkidle2", timeout: 0 })
 
     console.log(page.url())
   } catch (e) {
@@ -147,6 +179,8 @@ const requestDemo = async function (page, data) {
 
 const requestFull = async function (page, id, package_id) {
   try {
+    // await doLogin(page)
+
     await page.goto(`${PAGES.REQUEST_FULL}line?id=${id}`, { waitUntil: "networkidle2", timeout: 0 });
     await page.waitForSelector("#username");
 
@@ -166,7 +200,7 @@ const requestFull = async function (page, id, package_id) {
     await page.select("#package", String(package_id));
 
     await clickIntoButtonByQuery(page, 'a[href="#review-purchase"]'),
-    await page.waitForNavigation({ waitUntil: "networkidle0" })
+    await page.waitForNavigation({ waitUntil: "networkidle2", timeout: 0 })
     
     return {
       s: 1
@@ -346,7 +380,11 @@ const getUserByName = async function (page, username) {
     await page.goto(PAGES.USERS, { waitUntil: "networkidle2", timeout: 0 });
   }
 
-  await page.waitForSelector(".table");
+  Promise.all([
+    page.waitForNavigation({ waitUntil: "networkidle2", timeout: 0 }),
+    page.content(),
+    page.waitForSelector(".table")
+  ])
 
   const headers = await page.$$eval("thead tr", (rows) => {
     return Array.from(rows, (row) => {
