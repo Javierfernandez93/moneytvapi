@@ -16,7 +16,7 @@ const loadBrowser = async function () {
     console.log('new')
     browser = await puppeteer.launch({
       headless: 'old', // default 'old', local = false
-      headless: false,
+      // headless: false,
       defaultViewport: null,
       executablePath: await chromium.executablePath,
       args: [
